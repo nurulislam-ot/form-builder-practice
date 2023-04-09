@@ -3,7 +3,7 @@ import { useDrag } from 'react-dnd'
 import ItemTypes from '../utils/itemTypes'
 
 const DoneTaskBox: React.FC<{ task: Task }> = ({ task }) => {
-  const [{ isDragging }, dragRef, dragPreview] = useDrag(() => ({
+  const [{ isDragging }, dragRef] = useDrag(() => ({
     type: ItemTypes.CARD,
     item: {
       id: task.id,

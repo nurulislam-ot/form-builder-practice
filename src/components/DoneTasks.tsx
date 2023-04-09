@@ -1,6 +1,6 @@
 import React from 'react'
 import NotDoneTaskBox from './NotDoneTaskBox'
-import { useDrop } from 'react-dnd'
+import { useDrop, useDrag } from 'react-dnd'
 import ItemTypes from '../utils/itemTypes'
 import DoneTaskBox from './DoneTaskBox'
 

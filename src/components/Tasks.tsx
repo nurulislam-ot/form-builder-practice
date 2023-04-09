@@ -39,7 +39,6 @@ const Tasks = () => {
   const completeTask = (id: number) => {
     const task = tasks.filter((task) => task.id === id)
     task[0].status = 'done'
-    console.log(task)
     setTasks((taksList) =>
       taksList.filter((task) => task.id !== id).concat(task)
     )
@@ -48,10 +47,13 @@ const Tasks = () => {
   const inCompleteTask = (id: number) => {
     const task = tasks.filter((task) => task.id === id)
     task[0].status = 'not-done'
-    console.log(task)
     setTasks((taksList) =>
       taksList.filter((task) => task.id !== id).concat(task)
     )
+  }
+
+  const moveTask = (dragIndex: number, hoverIndex: number) => {
+    const dragCard = tasks[dragIndex]
   }
 
   return (
