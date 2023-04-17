@@ -9,18 +9,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@editorjs/editorjs": "^2.26.5",
     "classnames": "^2.3.2",
     "framer-motion": "^10.11.2",
+    "immer": "^9.0.21",
     "immutability-helper": "^3.1.1",
     "react": "^18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.10.0"
+    "react-router-dom": "^6.10.0",
+    "shortid": "^2.2.16"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "@types/shortid": "^0.0.29",
     "@vitejs/plugin-react": "^3.1.0",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.21",

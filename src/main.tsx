@@ -8,7 +8,7 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   // <React.StrictMode>
-  <DndProvider backend={HTML5Backend}>
+  <DndProvider backend={HTML5Backend} debugMode={true}>
     <App />
   </DndProvider>
   // </React.StrictMode>

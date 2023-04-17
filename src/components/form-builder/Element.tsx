@@ -1,27 +1,40 @@
-import classNames from 'classnames'
-import React, { useContext, useEffect, useRef } from 'react'
-import { motion, Reorder } from 'framer-motion'
+import classnames from 'classnames'
+import React, { useContext, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 
-import { ElementInterface } from './ElementBox'
 import { context } from '../../pages/FormBuilder'
+import { moveArray } from '../../function/moveArray'
+import IElement from '../../interface/Element'
+import Row from './dynamic-components/Row'
+import ItemTypes from '../../utils/itemTypes'
 
-interface Props {
-  element: ElementInterface
+// if element placed in body
+interface Element {
+  element: IElement
   index: number
 }
 
-const Element: React.FC<Props> = ({ ...props }) => {
-  const { element, index } = props
-  const { moveElements, elements, setElements } = useContext(context)
+// if element placed in a row.
+interface RowElement {
+  element: IElement
+  index: number
+  rowIndex: number
+}
+
+type Props = Element | RowElement
+
+const Element: React.FC<Props> = (props) => {
+  const { setElements } = useContext(context)
   const ref = useRef<HTMLDivElement>(null)
+  // console.log(props)
 
-  useEffect(() => {
-    console.log('useEffect', elements)
-  }, [elements])
+  const {
+    element: { type, width },
+    index,
+  } = props
 
-  const [{ isDragging }, dragRef] = useDrag(() => ({
-    type: 'self',
+  const [{ isDragging }, dragRef, preview] = useDrag(() => ({
+    type: ItemTypes.tagFromElement,
     item: { ...props },
     collect: (monitor) => {
       return {
@@ -31,122 +44,165 @@ const Element: React.FC<Props> = ({ ...props }) => {
   }))
 
   const [{ isOver, canDrop }, dropRef] = useDrop(() => ({
-    accept: 'self',
-    hover: (item: Props, monitor) => {},
-    drop: (item, monitor) => {
+    accept: ItemTypes.tagFromElement,
+    drop: (dropItem: Props, monitor) => {
       if (!ref.current) {
         return
       }
-      const dragIndex = item.index
-      const hoverIndex = index
+      const dragIndex = index
+      const dropIndex = dropItem.index
 
-      if (dragIndex === hoverIndex) {
+      if (dragIndex === dropIndex) {
         return
       }
 
-      const hoverBoundingRect = ref.current?.getBoundingClientRect()
+      // const hoverBoundingRect = ref.current?.getBoundingClientRect()
 
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+      // const hoverMiddleY =
+      //   (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
 
-      const clientOffset = monitor.getClientOffset()
-      const hoverClientY = clientOffset
-        ? clientOffset.y - hoverBoundingRect.top
-        : 0
+      // const clientOffset = monitor.getClientOffset()
+      // const hoverClientY = clientOffset
+      //   ? clientOffset.y - hoverBoundingRect.top
+      //   : 0
 
       // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return
-      }
+      // if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+      //   return
+      // }
 
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return
-      }
+      // // Dragging upwards
+      // if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+      //   return
+      // }
 
       // Time to actually perform the action
-      console.log(elements)
+      if (setElements) {
+        setElements((prevElements) => {
+          if ('rowIndex' in dropItem) {
+            const deepElements = [...prevElements]
+            // 1st step, get the row
+            const row = deepElements[index]
 
-      const newElements = moveElements(dragIndex, hoverIndex, [...elements])
-      if (setElements) setElements(newElements as ElementInterface[])
+            // change the moving index
+            if (row.children) {
+              const updatedRow = moveArray<IElement>(
+                dragIndex,
+                dropIndex,
+                row.children
+              )
+              row.children = updatedRow
+              deepElements.splice(index, 1, row)
 
-      item.index = hoverIndex
+              return deepElements
+            }
+          } else {
+            // that means the element is not children of any row
+
+            return moveArray(dragIndex, dropIndex, prevElements)
+          }
+          return prevElements
+        })
+      }
     },
-    canDrop: (item, monitor) => {
-      if (!ref.current) {
-        return false
-      }
-      const dragIndex = item.index
-      const hoverIndex = index
+    // canDrop: (item, monitor) => {
+    //   if (!ref.current) {
+    //     return false
+    //   }
+    //   const dragIndex = item.index
+    //   const hoverIndex = index
 
-      if (dragIndex === hoverIndex) {
-        return false
-      }
+    //   if (dragIndex === hoverIndex) {
+    //     return false
+    //   }
 
-      const hoverBoundingRect = ref.current?.getBoundingClientRect()
+    //   const hoverBoundingRect = ref.current?.getBoundingClientRect()
 
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+    //   const hoverMiddleY =
+    //     (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
 
-      const clientOffset = monitor.getClientOffset()
+    //   const clientOffset = monitor.getClientOffset()
 
-      const hoverClientY = clientOffset
-        ? clientOffset.y - hoverBoundingRect.top
-        : 0
+    //   const hoverClientY = clientOffset
+    //     ? clientOffset.y - hoverBoundingRect.top
+    //     : 0
 
-      // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return false
-      }
+    //   // Dragging downwards
+    //   if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+    //     return false
+    //   }
 
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return false
-      }
-      return true
-    },
+    //   // Dragging upwards
+    //   if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+    //     return false
+    //   }
+    //   return true
+    // },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
-      didDrop: monitor.didDrop(),
     }),
   }))
 
   dragRef(dropRef(ref))
 
   return (
-    <motion.div
-      animate={{
-        opacity: isDragging ? 0.5 : 1,
-      }}
-      ref={ref}
-      className={classNames('p-3 transition', {
-        'border-2 border-dashed border-indigo-400': canDrop,
+    <div
+      className={classnames('bg-white group transition', {
+        'border-2 border-dashed border-blue-600': isDragging,
+        'border-2 border-dashed border-red-600': isOver,
       })}
-      style={{ width: `${element.width}%` }}
+      style={{ width: `${width}%` }}
+      ref={ref}
     >
-      {/* <Reorder.Item value={element}> */}
-      <div className={classNames('p-2 border-2 rounded-lg border-orange-400')}>
-        {element.type === 'h1' ? (
-          <h1 className='text-3xl font-bold'>Heading 1</h1>
+      <div className='p-3'>
+        {type === 'h1' ? (
+          <div>
+            <h1 className='text-3xl font-medium'>Heading</h1>
+          </div>
         ) : null}
-        {element.type === 'input' ? (
-          <input
-            type='text'
-            className='w-full border-2 border-blue-500 px-3 py-2 rounded-lg'
-          />
+        {type === 'input' ||
+        type === 'date' ||
+        type === 'password' ||
+        type == 'file' ? (
+          <div className='flex flex-col gap-y-1'>
+            <label htmlFor={type}>Enter your {type}</label>
+            <input
+              id={type}
+              type={type}
+              placeholder={type === 'input' ? 'Write Some Text' : '********'}
+              className={classnames(
+                'w-full border-2 border-blue-500 px-3 py-2 rounded-lg',
+                { 'py-[5px]': type === 'file' }
+              )}
+            />
+          </div>
         ) : null}
-        {element.type === 'p' ? (
-          <p className='w-full'>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Excepturi,
-            iusto molestias ratione magnam eveniet sed aliquam quisquam fugit
-            totam asperiores sint amet quod dolores sapiente assumenda qui
-            facilis tempore rem?
-          </p>
+        {type === 'p' ? (
+          <div>
+            <p>
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+              Excepturi, iusto molestias ratione magnam eveniet sed aliquam
+              quisquam fugit totam asperiores sint amet quod dolores sapiente
+              assumenda qui facilis tempore rem?
+            </p>
+          </div>
         ) : null}
+        {type === 'select' ? (
+          <div className='flex flex-col gap-y-1'>
+            <label htmlFor='select'>Select your option</label>
+
+            <select className='w-full border-2 border-blue-500 px-3 py-2 rounded-lg bg-white'>
+              <option value='1'>Option 1</option>
+              <option value='2'>Option 2</option>
+              <option value='3'>Option 3</option>
+            </select>
+          </div>
+        ) : null}
+
+        {type === 'row' ? <Row element={props.element} index={index} /> : null}
       </div>
-      {/* </Reorder.Item> */}
-    </motion.div>
+    </div>
   )
 }
 
