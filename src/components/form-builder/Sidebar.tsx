@@ -5,14 +5,14 @@ import ItemTypes from '../../utils/itemTypes'
 
 const Sidebar: React.FC = () => {
   const [sideBarElements] = useState<IElement[]>([
-    { type: 'h1', width: 100, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'p', width: 50, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'input', width: 25, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'file', width: 25, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'select', width: 25, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'password', width: 25, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'date', width: 25, dndItemType: ItemTypes.tagFromSideBar },
-    { type: 'row', width: 100, dndItemType: ItemTypes.tagFromSideBar },
+    { type: 'h1', width: 100, actionState: ItemTypes.tagFromSideBar },
+    { type: 'p', width: 50, actionState: ItemTypes.tagFromSideBar },
+    { type: 'input', width: 25, actionState: ItemTypes.tagFromSideBar },
+    { type: 'file', width: 25, actionState: ItemTypes.tagFromSideBar },
+    { type: 'select', width: 25, actionState: ItemTypes.tagFromSideBar },
+    { type: 'password', width: 25, actionState: ItemTypes.tagFromSideBar },
+    { type: 'date', width: 25, actionState: ItemTypes.tagFromSideBar },
+    { type: 'row', width: 100, actionState: ItemTypes.tagFromSideBar },
   ])
 
   return (

@@ -38,7 +38,7 @@ const SelectElementFromSideBar: React.FC<Props> = (props) => {
   const { type } = props
   const [{ isDragging }, dropRef] = useDrag(() => ({
     type: ItemTypes.tagFromSideBar,
-    item: props,
+    item: { ...props, actionState: ItemTypes.tagFromSideBar },
     collect(monitor) {
       return { isDragging: monitor.isDragging() }
     },

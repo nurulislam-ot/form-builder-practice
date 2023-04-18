@@ -5,12 +5,19 @@ import ItemTypes from '../../utils/itemTypes'
 import { context } from '../../pages/FormBuilder'
 import Element from './Element'
 import IElement from '../../interface/Element'
-import { sideBarToBody } from '../../function/helpers'
+import { rowToBody, sideBarToBody } from '../../function/helpers'
+
+type DropItem = { element: IElement; index: number } | IElement
 
 const Body: React.FC = () => {
   const { elements, setElements } = useContext(context)
   const [{ isOver }, dropRef] = useDrop(() => ({
-    accept: [ItemTypes.tagFromSideBar, ItemTypes.tagFromRow],
+    accept: [
+      ItemTypes.tagFromSideBar,
+      ItemTypes.tagFromRow,
+      ItemTypes.tagFromBody,
+      ItemTypes.tagFromElement,
+    ],
     collect: (monitor) => {
       return {
         isOver: monitor.isOver(),
@@ -18,7 +25,7 @@ const Body: React.FC = () => {
         didDrop: monitor.didDrop(),
       }
     },
-    drop: (item: IElement, monitor: DropTargetMonitor) => {
+    drop: (item: DropItem, monitor: DropTargetMonitor) => {
       const didDrop = monitor.didDrop()
 
       // item will dropped in row. If this condition return true
@@ -28,7 +35,17 @@ const Body: React.FC = () => {
 
       // place element in last of the body
       else {
-        setElements((prevState) => sideBarToBody(item, prevState))
+        setElements((prevState) => {
+          if ('element' in item) {
+            if (item.element.actionState.startsWith('tagFromRow')) {
+              const rowIndex = parseInt(item.element.actionState.split('-')[1])
+              return rowToBody(rowIndex, item.index, prevState)
+            }
+          } else {
+            return sideBarToBody(item, prevState)
+          }
+          return prevState
+        })
       }
     },
   }))

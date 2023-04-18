@@ -1,7 +1,7 @@
 interface IElement {
   type: string // html tag type
   width: number // width: 100%
-  dndItemType: string
+  actionState: string // fromSideBar, fromBody, fromRow-1, fromRow-2
   children?: IElement[]
 }
 
